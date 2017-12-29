@@ -9,29 +9,45 @@
 #include <ros/ros.h>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <cstdlib>
 #include "pokemon.h"
 
 class Trainer{
   public:
-    Trainer(){
-      std::vector<Pokemon> list;
-    }
+    //---- ポケモンのデータベースからの検索とデータのセット用
+    void Initialize(std::string party_filename);
+    Pokemon search_pokemon(std::string poke_name);
+    std::string get_param(std::string line, int param_num);
+    int type_number(std::string type);
+    void table_setter();
+    
     //---- getter ----
-    int num_pokemon_(){ return num_pokemon; }
+    int num_pokemon() { return num_pokemon_; }
+    std::vector<std::string> name_list() { return name_list_; }
+    std::string list_pokename(int index) { return list_[index].Name(); }
     
     //---- setter ----
     //選択したポケモンへのインデックスを保存
-    void set_selected_poke(int *selected){
+    void set_selected_poke(int *selected) {
       for(int i=0; i< 3;i++){
-        poke_list[i] = selected[i];
+        poke_list_[i] = selected[i];
       }
     }
 
-    //対戦用
-    void attack_(Trainer ene);
+    //相性チェック用関数
+    void comp_checker(std::vector<std::string> ene_names);
+    double table_check(int atk_type, int def_type);
+
+    //Interface
+    void score();
 
   private:
-    int num_pokemon;      //残りのポケモン数
-    static int poke_list[3];     //選択した３体のポケモンへのインデックス
-    static std::vector<Trainer> ene_list;
+    std::vector<Pokemon> list_;
+    std::vector<Pokemon> ene_list_;
+    std::vector<std::string> name_list_;
+    int num_pokemon_;      //残りのポケモン数
+    int poke_list_[3];     //選択した３体のポケモンへのインデックス
+    constexpr static int default_pokeall_num = 6;
+    std::vector<std::vector<double>> Compatibility_table;
 };
